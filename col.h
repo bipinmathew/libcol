@@ -1,0 +1,71 @@
+#ifndef __ARRAY_H__
+#define __ARRAY_H__
+
+/**
+ * @brief A structure to hold columns of type int.
+ */
+typedef struct col_int{
+    unsigned int numrows; /**< number of rows in column */
+    int *d; /**< pointer to the actual data */
+} col_int;
+
+
+
+/**
+ * @brief A structure to hold columns of type int.
+ */
+typedef struct col_uint{
+    unsigned int numrows; /**< number of rows in column */
+    unsigned int *d; /**< pointer to the actual data */
+} col_uint;
+
+
+
+/**
+ * @brief A structure to hold columns of type double.
+ */
+typedef struct col_double{
+    unsigned int numrows; /**< number of rows in column */
+    double *d; /**< pointer to the actual data */
+} col_double;
+
+/**
+ * @brief A structure to hold columns of type str.
+ */
+typedef struct col_str{
+    unsigned int _numrows; /**< internal count of number of rows in column */
+    unsigned int numrows; /**<  actual number of rows in column */
+    unsigned int _numbytes; /**< internal count of bytes in column */
+    unsigned int numbytes; /**< total number of bytes loaded */
+    unsigned int *offset; /**< array containing offsets to the end of each string. For example d[offset[i]-1] is the last character of the ith record for this column of strings.*/
+    unsigned char *d; /**< pointer to the actual data */
+} col_str;
+
+
+
+int col_int_init(col_int **p );
+
+void col_int_free(col_int *arr);
+
+int col_int_realloc(col_int *arr,unsigned int numrows);
+
+int col_int_getlength(const col_int *arr, unsigned int *len);
+
+
+int col_uint_getlength(const col_uint *arr, unsigned int *len);
+
+
+
+int col_double_init(col_double **p );
+
+int col_double_realloc(col_double *arr,unsigned int numrows);
+
+void col_double_free(col_double *arr);
+
+void col_str_free(col_str *arr);
+
+int col_str_init(col_str **p);
+
+int col_str_realloc(col_str *arr,unsigned int numrows);
+
+#endif
