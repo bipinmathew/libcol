@@ -49,10 +49,17 @@ void col_int_free(col_int *arr);
 
 int col_int_realloc(col_int *arr,unsigned int numrows);
 
+int col_int_disp(col_int *arr);
+
 int col_int_getlength(const col_int *arr, unsigned int *len);
 
 
+
+
+int col_uint_init(col_uint **p );
+int col_uint_realloc(col_uint *arr,unsigned int numrows);
 int col_uint_getlength(const col_uint *arr, unsigned int *len);
+int col_uint_range(col_uint *arr, unsigned int l, unsigned int r, unsigned int step);
 
 
 

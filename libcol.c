@@ -1,4 +1,5 @@
 #include "stdlib.h"
+#include "stdio.h"
 #include "col.h"
 
 
@@ -53,14 +54,64 @@ int col_int_rand(col_int *arr,const col_uint *idx, unsigned int min, unsigned in
 }
 
 
+int col_int_disp(col_int *arr){
+    unsigned int i;
+    printf(" ");
+    for(i=0;i<arr->numrows;i++)
+        printf(" %d",arr->d[i]);
+    printf("\n");
+}
+
+
 /* End Integer functions */
 
 
 /* Start uint functions */
+
+
+int col_uint_init(col_uint **p ){
+    if((*p = (col_uint *)malloc(sizeof(col_uint)))==NULL){
+        return 1;
+    }
+    (*p)->d = NULL;
+    return 0;
+}
+
+
+void col_uint_free(col_uint *arr){
+    free(arr->d);
+    free(arr);
+}
+
+
+int col_uint_realloc(col_uint *arr,unsigned int numrows){
+    if(NULL == (arr->d = realloc(arr->d,numrows*sizeof(unsigned int)))){
+      return 1;
+    }
+    arr->numrows=numrows;
+    return 0;
+}
+
+
 int col_uint_getlength(const col_uint *arr, unsigned int *len){
   *len = arr->numrows;
   return 0;
 }
+
+
+int col_uint_range(col_uint *arr, unsigned int l, unsigned int r, unsigned int step){
+    unsigned int i,arr_len,N;
+    N = (unsigned int)((r-l)/step);
+    col_uint_getlength(arr,&arr_len);
+    if(arr_len<N){
+        col_uint_realloc(arr,N);
+    }
+    for(i=0;i<N;i++){
+        arr->d[i]=l+i*step;
+    }
+}
+
+
 /* End uint functions */
 
 

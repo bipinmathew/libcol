@@ -15,6 +15,7 @@ AC_PROG_RANLIB
 AM_PROG_AR
 
 # Checks for libraries.
+AC_CHECK_LIB(cunit,CU_console_run_tests)
 
 # Checks for header files.
 
