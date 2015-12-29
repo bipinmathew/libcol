@@ -13,6 +13,18 @@ int col_int_init(col_int **p ){
 }
 
 
+int col_int_get(const col_int *arr, unsigned int num, int *value){
+    *value = arr->d[num];
+    return 0;
+}
+
+int col_int_set(col_int *arr, unsigned int num, int value){
+    arr->d[num] = value;
+    return 0;
+}
+
+
+
 void col_int_free(col_int *arr){
     free(arr->d);
     free(arr);
@@ -34,20 +46,21 @@ int col_int_getlength(const col_int *arr, unsigned int *len){
 
 int col_int_rand(col_int *arr,const col_uint *idx, unsigned int min, unsigned int max, unsigned int num){
     int i;
-    unsigned int arr_len, idx_len;
+    unsigned int arr_len, idx_len,v;
     col_int_getlength(arr,&arr_len);
     if(arr_len<num){
         col_int_realloc(arr,num);
     }
     if(idx==NULL){
       for(i=0;i<num;i++){
-          arr->d[i]=min+(random()%(max-min+1));
+          col_int_set(arr,i,min+(random()%(max-min+1)));
       }
     }
     else{
       col_uint_getlength(idx,&idx_len);
       for(i=0;i<num;i++){
-          arr->d[idx->d[i%idx_len]]=min+(random()%(max-min+1));
+          col_uint_get(idx,i%idx_len,&v);
+          col_int_set(arr,v,min+(random()%(max-min+1)));
       }
     }
     return 0;
@@ -56,9 +69,12 @@ int col_int_rand(col_int *arr,const col_uint *idx, unsigned int min, unsigned in
 
 int col_int_disp(col_int *arr){
     unsigned int i;
+    int v;
     printf(" ");
-    for(i=0;i<arr->numrows;i++)
-        printf(" %d",arr->d[i]);
+    for(i=0;i<arr->numrows;i++){
+        col_int_get(arr,i,&v);
+        printf(" %d",v);
+    }
     printf("\n");
 }
 
@@ -74,6 +90,17 @@ int col_uint_init(col_uint **p ){
         return 1;
     }
     (*p)->d = NULL;
+    return 0;
+}
+
+
+int col_uint_get(const col_uint *arr, unsigned int num, int *value){
+    *value = arr->d[num];
+    return 0;
+}
+
+int col_uint_set(col_uint *arr, unsigned int num, int value){
+    arr->d[num] = value;
     return 0;
 }
 
@@ -107,7 +134,7 @@ int col_uint_range(col_uint *arr, unsigned int l, unsigned int r, unsigned int s
         col_uint_realloc(arr,N);
     }
     for(i=0;i<N;i++){
-        arr->d[i]=l+i*step;
+        col_uint_set(arr,i,l+i*step);
     }
 }
 
