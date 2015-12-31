@@ -6,6 +6,8 @@
  */
 typedef struct col_int{
     unsigned int numrows; /**< number of rows in column */
+    int min;
+    int max;
     int *d; /**< pointer to the actual data */
 } col_int;
 
@@ -16,6 +18,10 @@ typedef struct col_int{
  */
 typedef struct col_uint{
     unsigned int numrows; /**< number of rows in column */
+    unsigned int min;
+    unsigned int max;
+    int sorted;
+    int uniq;
     unsigned int *d; /**< pointer to the actual data */
 } col_uint;
 
@@ -44,18 +50,16 @@ typedef struct col_str{
 
 
 int col_int_init(col_int **p );
-
 int col_int_get(const col_int *arr, unsigned int num, int *value);
-
+int col_int_sum(const col_int *arr, int *output);
 int col_int_set(col_int *arr, unsigned int num, int value);
-
 void col_int_free(col_int *arr);
-
 int col_int_realloc(col_int *arr,unsigned int numrows);
-
 int col_int_disp(col_int *arr);
-
 int col_int_getlength(const col_int *arr, unsigned int *len);
+int col_int_range(col_int *arr, signed int l, signed int r, unsigned int step);
+int col_int_min(const col_int *arr, int *value);
+int col_int_max(const col_int *arr, int *value);
 
 
 
@@ -64,12 +68,15 @@ int col_uint_init(col_uint **p );
 
 
 int col_uint_get(const col_uint *arr, unsigned int num, int *value);
-
-int col_uint_set(col_uint *arr, unsigned int num, int value);
+int col_uint_sum(const col_uint *arr, unsigned int *output);
+int col_uint_set(col_uint *arr, unsigned int num, unsigned int value);
 
 int col_uint_realloc(col_uint *arr,unsigned int numrows);
+int col_uint_disp(col_uint *arr);
 int col_uint_getlength(const col_uint *arr, unsigned int *len);
 int col_uint_range(col_uint *arr, unsigned int l, unsigned int r, unsigned int step);
+int col_uint_min(const col_uint *arr, unsigned int *value);
+int col_uint_max(const col_uint *arr, unsigned int *value);
 
 
 

@@ -1,5 +1,7 @@
-#include "stdlib.h"
-#include "stdio.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
+#include <string.h>
 #include "col.h"
 
 
@@ -9,6 +11,10 @@ int col_int_init(col_int **p ){
         return 1;
     }
     (*p)->d = NULL;
+    (*p)->numrows = 0;
+    (*p)->min = INT_MAX;
+    (*p)->max = INT_MIN;
+    // col_int_realloc(*p, 1024);
     return 0;
 }
 
@@ -20,10 +26,24 @@ int col_int_get(const col_int *arr, unsigned int num, int *value){
 
 int col_int_set(col_int *arr, unsigned int num, int value){
     arr->d[num] = value;
+    if(arr->min > value)
+        arr->min = value;
+    else if(arr->max<value)
+        arr->max = value;
     return 0;
 }
 
-
+int col_int_sum(const col_int *arr, int *output){
+    unsigned int len,i;
+    int v;
+    col_int_getlength(arr,&len);
+    *output = 0;
+    for(i=0;i<len;i++){
+       col_int_get(arr,i,&v);
+       *output+=v;
+    }
+    return 0;
+}
 
 void col_int_free(col_int *arr){
     free(arr->d);
@@ -32,10 +52,13 @@ void col_int_free(col_int *arr){
 
 
 int col_int_realloc(col_int *arr,unsigned int numrows){
+    unsigned int s;
+    s = arr->numrows;
     if(NULL == (arr->d = realloc(arr->d,numrows*sizeof(int)))){
       return 1;
     }
     arr->numrows=numrows;
+    memset(&arr->d[s],0,(numrows-s)*sizeof(int));
     return 0;
 }
 
@@ -78,6 +101,30 @@ int col_int_disp(col_int *arr){
     printf("\n");
 }
 
+int col_int_range(col_int *arr, signed int l, signed int r, unsigned int step){
+    unsigned int i,arr_len,N;
+    N = (unsigned int)((r-l)/step);
+    col_int_getlength(arr,&arr_len);
+    if(arr_len<=N){
+        col_int_realloc(arr,N+1);
+    }
+    for(i=0;i<=N;i++){
+        col_int_set(arr,i,l+i*step);
+    }
+}
+
+
+
+int col_int_min(const col_int *arr, int *value){
+    *value = arr->min;
+    return 0;
+}
+
+
+int col_int_max(const col_int *arr, int *value){
+    *value = arr->max;
+    return 0;
+}
 
 /* End Integer functions */
 
@@ -90,6 +137,10 @@ int col_uint_init(col_uint **p ){
         return 1;
     }
     (*p)->d = NULL;
+    (*p)->numrows = 0;
+    (*p)->min = UINT_MAX;
+    (*p)->max = 0;
+    // col_uint_realloc(*p, 1024);
     return 0;
 }
 
@@ -99,8 +150,24 @@ int col_uint_get(const col_uint *arr, unsigned int num, int *value){
     return 0;
 }
 
-int col_uint_set(col_uint *arr, unsigned int num, int value){
+int col_uint_sum(const col_uint *arr, unsigned int *output){
+    unsigned int len,i;
+    int v;
+    col_uint_getlength(arr,&len);
+    *output = 0;
+    for(i=0;i<len;i++){
+       col_uint_get(arr,i,&v);
+       *output+=v;
+    }
+    return 0;
+}
+
+int col_uint_set(col_uint *arr, unsigned int num, unsigned int value){
     arr->d[num] = value;
+    if(arr->min > value)
+        arr->min = value;
+    else if(arr->max<value)
+        arr->max = value;
     return 0;
 }
 
@@ -112,10 +179,13 @@ void col_uint_free(col_uint *arr){
 
 
 int col_uint_realloc(col_uint *arr,unsigned int numrows){
+    unsigned int s;
+    s = arr->numrows;
     if(NULL == (arr->d = realloc(arr->d,numrows*sizeof(unsigned int)))){
       return 1;
     }
     arr->numrows=numrows;
+    memset(&arr->d[s],0,(numrows-s)*sizeof(unsigned int));
     return 0;
 }
 
@@ -125,18 +195,41 @@ int col_uint_getlength(const col_uint *arr, unsigned int *len){
   return 0;
 }
 
+int col_uint_disp(col_uint *arr){
+    unsigned int i;
+    unsigned int v;
+    printf(" ");
+    for(i=0;i<arr->numrows;i++){
+        col_uint_get(arr,i,&v);
+        printf(" %d",v);
+    }
+    printf("\n");
+}
 
 int col_uint_range(col_uint *arr, unsigned int l, unsigned int r, unsigned int step){
     unsigned int i,arr_len,N;
     N = (unsigned int)((r-l)/step);
     col_uint_getlength(arr,&arr_len);
-    if(arr_len<N){
-        col_uint_realloc(arr,N);
+    if(arr_len<=N){
+        col_uint_realloc(arr,N+1);
     }
-    for(i=0;i<N;i++){
+    for(i=0;i<=N;i++){
         col_uint_set(arr,i,l+i*step);
     }
 }
+
+
+int col_uint_min(const col_uint *arr, unsigned int *value){
+    *value = arr->min;
+    return 0;
+}
+
+
+int col_uint_max(const col_uint *arr, unsigned int *value){
+    *value = arr->max;
+    return 0;
+}
+
 
 
 /* End uint functions */
