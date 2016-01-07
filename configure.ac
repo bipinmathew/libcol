@@ -5,7 +5,6 @@ AC_PREREQ([2.69])
 AC_INIT([libcol], [0.01], [bipinmathew@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
-
 AC_CONFIG_SRCDIR([col.h])
 AC_CONFIG_HEADERS([config.h])
 

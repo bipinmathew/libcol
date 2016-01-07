@@ -10,19 +10,12 @@
 void test_uint_range(void)
 {
     unsigned int value;
-    unsigned int a1,an,d,N,ev;
-    N = 100;
-    a1 = 2;
-    d = 3;
-    an = a1+(N-1)*d;
-    ev = (N*(a1+an))/2;
     col_uint *idx;
     col_uint_init(&idx);
-    col_uint_range(idx,a1,an,d);
+    col_uint_range(idx,2,10000,3);
 
-    /* col_uint_disp(idx); */
     col_uint_sum(idx,&value);
-    CU_ASSERT(ev==value);
+    CU_ASSERT(16665000==value);
     col_uint_free(idx);
 
 }
@@ -31,21 +24,13 @@ void test_uint_range(void)
 void test_int_range(void)
 {
     int value;
-    unsigned int d,N;
-    int a1,an,ev;
 
-    N = 100;
-    a1 = -10;
-    d = 3;
-    an = a1+(N-1)*d;
-    ev = (N*(a1+an))/2;
     col_int *idx;
     col_int_init(&idx);
-    col_int_range(idx,a1,an,d);
+    col_int_range(idx,-10,10000,3);
 
-    /* col_int_disp(idx); */
     col_int_sum(idx,&value);
-    CU_ASSERT(ev==value);
+    CU_ASSERT(16664978==value);
     col_int_free(idx);
 
 }
@@ -106,7 +91,6 @@ void test_int_min(void)
     col_int_init(&idx);
     col_int_range(idx,a1,an,d);
 
-    /* col_int_disp(idx); */
     col_int_min(idx,&value);
     CU_ASSERT(a1==value);
     col_int_free(idx);
@@ -128,7 +112,6 @@ void test_int_max(void)
     col_int_init(&idx);
     col_int_range(idx,a1,an,d);
 
-    /* col_int_disp(idx); */
     col_int_max(idx,&value);
     CU_ASSERT(an==value);
     col_int_free(idx);
