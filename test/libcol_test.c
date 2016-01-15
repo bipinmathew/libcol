@@ -12,10 +12,10 @@ void test_uint_range(void)
     unsigned int value;
     col_uint *idx;
     col_uint_init(&idx);
-    col_uint_range(idx,2,10000,3);
+    col_uint_range(idx,2,10,3);
 
     col_uint_sum(idx,&value);
-    CU_ASSERT(16665000==value);
+    CU_ASSERT(15==value);
     col_uint_free(idx);
 
 }
@@ -27,14 +27,13 @@ void test_int_range(void)
 
     col_int *idx;
     col_int_init(&idx);
-    col_int_range(idx,-10,10000,3);
+    col_int_range(idx,-2,10,3);
 
     col_int_sum(idx,&value);
-    CU_ASSERT(16664978==value);
+    CU_ASSERT(20==value);
     col_int_free(idx);
 
 }
-
 
 
 void test_uint_min(void)
@@ -55,25 +54,20 @@ void test_uint_min(void)
 
 }
 
+
 void test_uint_max(void)
 {
     unsigned int value;
-    unsigned int a1,an,d,N,ev;
-    N = 100;
-    a1 = 2;
-    d = 3;
-    an = a1+(N-1)*d;
     col_uint *idx;
-    col_uint_init(&idx);
-    col_uint_range(idx,a1,an,d);
 
+    col_uint_init(&idx);
+    col_uint_range(idx,2,100,3);
+    col_uint_disp(idx);
     col_uint_max(idx,&value);
-    CU_ASSERT(an==value);
+    CU_ASSERT(98==value);
     col_uint_free(idx);
 
 }
-
-
 
 
 void test_int_min(void)
@@ -96,6 +90,7 @@ void test_int_min(void)
     col_int_free(idx);
 
 }
+
 
 void test_int_max(void)
 {
@@ -120,6 +115,34 @@ void test_int_max(void)
 
 
 
+void test_col_int_subset_assign_scalar(void)
+{
+    int value, ret;
+    unsigned int num;
+
+    col_int *arr;
+    col_uint *idx;
+
+    col_int_init(&arr);
+    col_uint_init(&idx);
+
+    col_int_range(arr,-10,10,3);
+    col_int_getlength(arr,&num);
+
+    printf("\nHERE IS THE LENGTH: %d\n",num);
+
+    col_uint_range(idx,0,num,2);
+    ret = col_int_subset_assign_scalar(arr,idx,1);
+    col_uint_range(idx,1,num,2);
+    col_int_subset_assign_scalar(arr,idx,-1); 
+
+    col_uint_disp(idx);
+    col_int_disp(arr);
+    CU_ASSERT(0==ret);
+    col_int_free(arr);
+    col_uint_free(idx);
+
+}
 
 
 void testRAND(void)
@@ -142,7 +165,6 @@ void testRAND(void)
     col_uint_free(idx);
 
 }
-
 
 
 /* The main() function for setting up and running the tests.
@@ -171,6 +193,7 @@ int main()
        (NULL == CU_add_test(pSuite, "test of col_uint_min", test_uint_min ))   ||
        (NULL == CU_add_test(pSuite, "test of col_int_min", test_int_min  ))    || 
        (NULL == CU_add_test(pSuite, "test of col_uint_max", test_uint_max ))   ||
+       (NULL == CU_add_test(pSuite, "test of col_int_subset_assign_scalar", test_col_int_subset_assign_scalar ))   ||
        (NULL == CU_add_test(pSuite, "test of col_int_max", test_int_max  )) 
        )
    {
@@ -184,4 +207,3 @@ int main()
    CU_cleanup_registry();
    return CU_get_error();
 }
-
