@@ -65,7 +65,7 @@ col_int_set (col_int * arr, unsigned int i, int value)
       col_int__getallocated (arr, &allocated);
     }
 
-  col_int_getlength (arr, &length);
+  col_int_length (arr, &length);
   if (i > length)
     {
       col_int__setlength (arr, i);
@@ -82,21 +82,12 @@ col_int_set (col_int * arr, unsigned int i, int value)
 int
 col_int_subset_assign_scalar (col_int * arr, const col_uint * idx, int value)
 {
-  unsigned int i, arr_len, idx_min, idx_max, idx_len, idx_val;
+  unsigned int i, idx_len, idx_val;
 
-  col_int_getlength(arr,&arr_len);
-
-  col_uint_min(idx,&idx_min);
-  col_uint_max(idx,&idx_max);
-  printf("\n idx_min: %d, idx_max: %d\n",idx_min,idx_max);
-  if((idx_min <= arr_len) && (idx_max <= arr_len)){
-    col_uint_getlength(idx,&idx_len);
-    for(i=0;i<=idx_len;i++){    
-      col_uint_get(idx,i,&idx_val);
-      col_int_set(arr,idx_val,value);
-    }
-  } else {
-    return 1;
+  col_uint_length(idx,&idx_len);
+  for(i=0;i<=idx_len;i++){    
+    col_uint_get(idx,i,&idx_val);
+    col_int_set(arr,idx_val,value);
   }
 
   return 0;
@@ -107,7 +98,7 @@ col_int_sum (const col_int * arr, int *output)
 {
   unsigned int len, i;
   int v;
-  col_int_getlength (arr, &len);
+  col_int_length (arr, &len);
   *output = 0;
   for (i = 0; i <= len; i++)
     {
@@ -131,12 +122,14 @@ col_int__realloc (col_int * arr, unsigned int allocate)
 {
   /* unsigned int s; 
      s = arr->allocate; */
+  unsigned int numrows;
+  col_int_length(arr, &numrows);
   if (NULL == (arr->d = realloc (arr->d, allocate * sizeof (int))))
     {
       return 1;
     }
   arr->_allocated = allocate;
-  /* memset(&arr->d[s],0,(numrows-s)*sizeof(int)); */
+  memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(int)); 
   return 0;
 }
 
@@ -149,7 +142,7 @@ col_int__getallocated (const col_int * arr, unsigned int *len)
 }
 
 int
-col_int_getlength (const col_int * arr, unsigned int *len)
+col_int_length (const col_int * arr, unsigned int *len)
 {
   *len = arr->numrows;
   return 0;
@@ -178,7 +171,7 @@ col_int_rand (col_int * arr, const col_uint * idx, unsigned int min,
     }
   else
     {
-      col_uint_getlength (idx, &idx_len);
+      col_uint_length (idx, &idx_len);
       for (i = 0; i < num; i++)
 	{
 	  col_uint_get (idx, i % idx_len, &v);
@@ -195,7 +188,7 @@ col_int_disp (col_int * arr)
   unsigned int i,numrows;
   int v;
 
-  col_int_getlength(arr,&numrows);
+  col_int_length(arr,&numrows);
   printf (" ");
   for (i = 0; i <= numrows; i++)
     {
@@ -278,7 +271,7 @@ col_uint_sum (const col_uint * arr, unsigned int *output)
 {
   unsigned int len, i;
   unsigned int v;
-  col_uint_getlength (arr, &len);
+  col_uint_length (arr, &len);
   *output = 0;
   for (i = 0; i <= len; i++)
     {
@@ -302,12 +295,12 @@ col_uint_set (col_uint * arr, unsigned int i, unsigned int value)
 	}
       col_uint__getallocated (arr, &allocated);
     }
-  col_uint_getlength (arr, &length);
+  col_uint_length (arr, &length);
   if (i > length)
     {
       col_uint__setlength (arr, i);
     }
-  col_uint_getlength (arr, &length);
+  col_uint_length (arr, &length);
 
   arr->d[i] = value;
   if (arr->min > value)
@@ -331,14 +324,16 @@ col_uint__realloc (col_uint * arr, unsigned int allocate)
 {
   /* unsigned int s;
      s = arr->allocate; */
-  arr->d =
-    (unsigned int *) realloc (arr->d, allocate * sizeof (unsigned int));
+
+  unsigned int numrows;
+  col_uint_length(arr, &numrows);
+  arr->d = (unsigned int *) realloc (arr->d, allocate * sizeof (unsigned int));
   if (arr->d == NULL)
     {
       return 1;
     }
   arr->_allocated = allocate;
-  /* memset(&arr->d[s],0,(numrows-s)*sizeof(unsigned int)); */
+  memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(unsigned int)); 
   return 0;
 }
 
@@ -350,7 +345,7 @@ col_uint__getallocated (const col_uint * arr, unsigned int *len)
 }
 
 int
-col_uint_getlength (const col_uint * arr, unsigned int *len)
+col_uint_length (const col_uint * arr, unsigned int *len)
 {
   *len = arr->numrows;
   return 0;
@@ -370,7 +365,7 @@ col_uint_disp (col_uint * arr)
   unsigned int i;
   unsigned int v;
   unsigned int numrows;
-  col_uint_getlength(arr,&numrows);
+  col_uint_length(arr,&numrows);
   printf (" ");
   for (i = 0; i <= numrows; i++)
     {

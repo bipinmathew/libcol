@@ -62,7 +62,6 @@ void test_uint_max(void)
 
     col_uint_init(&idx);
     col_uint_range(idx,2,100,3);
-    col_uint_disp(idx);
     col_uint_max(idx,&value);
     CU_ASSERT(98==value);
     col_uint_free(idx);
@@ -122,23 +121,21 @@ void test_col_int_subset_assign_scalar(void)
 
     col_int *arr;
     col_uint *idx;
+    int sum;
 
     col_int_init(&arr);
     col_uint_init(&idx);
 
-    col_int_range(arr,-10,10,3);
-    col_int_getlength(arr,&num);
+    col_int_range(arr,0,10,1);
+    col_int_length(arr,&num);
 
-    printf("\nHERE IS THE LENGTH: %d\n",num);
-
-    col_uint_range(idx,0,num,2);
+    col_uint_range(idx,0,2*num,3);
     ret = col_int_subset_assign_scalar(arr,idx,1);
-    col_uint_range(idx,1,num,2);
-    col_int_subset_assign_scalar(arr,idx,-1); 
+    col_uint_range(idx,1,2*num,3);
+    CU_ASSERT(0==col_int_subset_assign_scalar(arr,idx,-1)); 
 
-    col_uint_disp(idx);
-    col_int_disp(arr);
-    CU_ASSERT(0==ret);
+    col_int_sum(arr,&sum);
+    CU_ASSERT(15==sum);
     col_int_free(arr);
     col_uint_free(idx);
 
