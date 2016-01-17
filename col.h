@@ -63,6 +63,7 @@ int col_int_range(col_int *arr, int l, int r, unsigned int step);
 int col_int_min(const col_int *arr, int *value);
 int col_int_max(const col_int *arr, int *value);
 int col_int_subset_assign_scalar(col_int *arr, const col_uint * idx, int value);
+int col_int_select_scalar (const col_int * arr, col_uint * idx, int value);
 
 
 

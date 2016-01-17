@@ -6,14 +6,14 @@
 
 
 /* private functions */
-int col_uint__realloc(col_uint *arr,unsigned int numrows);
-int col_int__realloc(col_int *arr,unsigned int numrows);
-int col_uint__getallocated(const col_uint *arr, unsigned int *len);
-int col_int__getallocated(const col_int *arr, unsigned int *len);
-int col_int__setlength(col_int *arr, unsigned int len);
-int col_uint__setlength(col_uint *arr, unsigned int len);
-int col_int__reset (col_int * p);
-int col_uint__reset (col_uint * p);
+static int col_uint__realloc(col_uint *arr,unsigned int numrows);
+static int col_int__realloc(col_int *arr,unsigned int numrows);
+static int col_uint__getallocated(const col_uint *arr, unsigned int *len);
+static int col_int__getallocated(const col_int *arr, unsigned int *len);
+static int col_int__setlength(col_int *arr, unsigned int len);
+static int col_uint__setlength(col_uint *arr, unsigned int len);
+static int col_int__reset (col_int * p);
+static int col_uint__reset (col_uint * p);
 /* end private functions */
 
 /* Start Integer functions */
@@ -92,6 +92,23 @@ col_int_subset_assign_scalar (col_int * arr, const col_uint * idx, int value)
 
   return 0;
 }
+
+int 
+col_int_select_scalar (const col_int * arr, col_uint * idx, int value){
+  unsigned int i,k,arr_len;
+  int val;
+  col_uint__reset(idx);
+  col_int_length(arr,&arr_len);
+  k=0;
+  for(i=0;i<=arr_len;i++){
+    col_int_get(arr,i,&val);
+    if(val==value){
+      col_uint_set(idx,k++,i);
+    }
+  }
+  return 0;
+}
+
 
 int
 col_int_sum (const col_int * arr, int *output)

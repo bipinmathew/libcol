@@ -141,6 +141,35 @@ void test_col_int_subset_assign_scalar(void)
 
 }
 
+void test_col_int_select_scalar(void)
+{
+    int value, ret;
+    unsigned int num;
+
+    col_int *arr;
+    col_uint *idx;
+    int sum;
+
+    col_int_init(&arr);
+    col_uint_init(&idx);
+
+    col_int_range(arr,0,10,1);
+    col_int_length(arr,&num);
+
+    col_uint_range(idx,0,num,2);
+    CU_ASSERT(0 == col_int_subset_assign_scalar(arr,idx,1));
+
+    col_int_select_scalar(arr,idx,1);
+
+    col_uint_disp(idx);
+
+    col_int_free(arr);
+    col_uint_free(idx);
+
+}
+
+
+
 
 void testRAND(void)
 {
@@ -190,6 +219,7 @@ int main()
        (NULL == CU_add_test(pSuite, "test of col_uint_min", test_uint_min ))   ||
        (NULL == CU_add_test(pSuite, "test of col_int_min", test_int_min  ))    || 
        (NULL == CU_add_test(pSuite, "test of col_uint_max", test_uint_max ))   ||
+       (NULL == CU_add_test(pSuite, "test of col_int_select_scalar", test_col_int_select_scalar ))   ||
        (NULL == CU_add_test(pSuite, "test of col_int_subset_assign_scalar", test_col_int_subset_assign_scalar ))   ||
        (NULL == CU_add_test(pSuite, "test of col_int_max", test_int_max  )) 
        )
