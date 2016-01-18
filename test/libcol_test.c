@@ -161,37 +161,63 @@ void test_col_int_select_scalar(void)
 
     col_int_select_scalar(arr,idx,1);
 
-    col_uint_disp(idx);
-
     col_int_free(arr);
     col_uint_free(idx);
 
 }
 
 
-
-
-void testRAND(void)
+void test_col_uint_subset_assign_scalar(void)
 {
-    col_int *p;
-    col_uint *idx;
+    int value, ret;
+    unsigned int num;
 
-    col_int_init(&p);
+    col_uint *arr;
+    col_uint *idx;
+    int sum;
+
+    col_uint_init(&arr);
     col_uint_init(&idx);
 
-    col_uint_range(idx,0,100,2);
-    col_int_rand(p,NULL,0,10,100);
-    col_int_disp(p);
+    col_uint_range(arr,0,10,1);
+    col_uint_length(arr,&num);
 
-    col_int_rand(p,idx,0,10,100);
-    col_int_disp(p);
+    col_uint_range(idx,0,2*num,3);
+    ret = col_uint_subset_assign_scalar(arr,idx,1);
+    col_uint_range(idx,1,2*num,3);
+    CU_ASSERT(0==col_uint_subset_assign_scalar(arr,idx,-1)); 
 
-
-    col_int_free(p);
+    col_uint_sum(arr,&sum);
+    CU_ASSERT(15==sum);
+    col_uint_free(arr);
     col_uint_free(idx);
 
 }
 
+void test_col_uint_select_scalar(void)
+{
+    int value, ret;
+    unsigned int num;
+
+    col_uint *arr;
+    col_uint *idx;
+    int sum;
+
+    col_uint_init(&arr);
+    col_uint_init(&idx);
+
+    col_uint_range(arr,0,10,1);
+    col_uint_length(arr,&num);
+
+    col_uint_range(idx,0,num,2);
+    CU_ASSERT(0 == col_uint_subset_assign_scalar(arr,idx,1));
+
+    col_uint_select_scalar(arr,idx,1);
+
+    col_uint_free(arr);
+    col_uint_free(idx);
+
+}
 
 /* The main() function for setting up and running the tests.
  * Returns a CUE_SUCCESS on successful running, another
@@ -199,34 +225,51 @@ void testRAND(void)
  */
 int main()
 {
-   CU_pSuite pSuite = NULL;
+   CU_pSuite intSuite = NULL;
+   CU_pSuite uintSuite = NULL;
 
    /* initialize the CUnit test registry */
    if (CUE_SUCCESS != CU_initialize_registry())
       return CU_get_error();
 
    /* add a suite to the registry */
-   pSuite = CU_add_suite("Suite_1", NULL, NULL);
-   if (NULL == pSuite) {
+   intSuite = CU_add_suite("col_int Tests.", NULL, NULL);
+   uintSuite = CU_add_suite("col_uint Tests.", NULL, NULL);
+   if ((NULL == intSuite)||(NULL==uintSuite)) {
       CU_cleanup_registry();
       return CU_get_error();
    }
 
    /* add the tests to the suite */
    /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-   if ((NULL == CU_add_test(pSuite, "test of col_uint_range", test_uint_range)) || 
-       (NULL == CU_add_test(pSuite, "test of col_int_range", test_int_range))   ||
-       (NULL == CU_add_test(pSuite, "test of col_uint_min", test_uint_min ))   ||
-       (NULL == CU_add_test(pSuite, "test of col_int_min", test_int_min  ))    || 
-       (NULL == CU_add_test(pSuite, "test of col_uint_max", test_uint_max ))   ||
-       (NULL == CU_add_test(pSuite, "test of col_int_select_scalar", test_col_int_select_scalar ))   ||
-       (NULL == CU_add_test(pSuite, "test of col_int_subset_assign_scalar", test_col_int_subset_assign_scalar ))   ||
-       (NULL == CU_add_test(pSuite, "test of col_int_max", test_int_max  )) 
-       )
+   if (
+        (NULL == CU_add_test(intSuite, "test of col_int_range", test_int_range))   ||
+        (NULL == CU_add_test(intSuite, "test of col_int_min", test_int_min  ))    || 
+        (NULL == CU_add_test(intSuite, "test of col_int_select_scalar", test_col_int_select_scalar ))   ||
+        (NULL == CU_add_test(intSuite, "test of col_int_subset_assign_scalar", test_col_int_subset_assign_scalar ))   ||
+        (NULL == CU_add_test(intSuite, "test of col_int_max", test_int_max  )) 
+      )
    {
       CU_cleanup_registry();
       return CU_get_error();
    }
+
+
+
+   /* add the tests to the suite */
+   /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
+   if (
+        (NULL == CU_add_test(uintSuite, "test of col_uint_range", test_uint_range)) || 
+        (NULL == CU_add_test(uintSuite, "test of col_uint_min", test_uint_min ))   ||
+        (NULL == CU_add_test(uintSuite, "test of col_uint_max", test_uint_max ))   ||
+        (NULL == CU_add_test(uintSuite, "test of col_uint_select_scalar", test_col_uint_select_scalar ))   ||
+        (NULL == CU_add_test(uintSuite, "test of col_uint_subset_assign_scalar", test_col_uint_subset_assign_scalar ))
+      )
+   {
+      CU_cleanup_registry();
+      return CU_get_error();
+   }
+
 
    /* Run all tests using the CUnit Basic interface */
    CU_basic_set_mode(CU_BRM_VERBOSE);

@@ -174,8 +174,7 @@ col_int__setlength (col_int * arr, unsigned int len)
 
 
 int
-col_int_rand (col_int * arr, const col_uint * idx, unsigned int min,
-	      unsigned int max, unsigned int num)
+col_int_rand (col_int * arr, const col_uint * idx, int min, int max, unsigned int num)
 {
   unsigned int i;
   unsigned int idx_len, v;
@@ -189,9 +188,9 @@ col_int_rand (col_int * arr, const col_uint * idx, unsigned int min,
   else
     {
       col_uint_length (idx, &idx_len);
-      for (i = 0; i < num; i++)
+      for (i = 0; i < idx_len; i++)
 	{
-	  col_uint_get (idx, i % idx_len, &v);
+	  col_uint_get (idx, i , &v);
 	  col_int_set (arr, v, min + (rand () % (max - min + 1)));
 	}
     }
@@ -324,6 +323,36 @@ col_uint_set (col_uint * arr, unsigned int i, unsigned int value)
     arr->min = value;
   else if (arr->max < value)
     arr->max = value;
+  return 0;
+}
+
+int
+col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigned int value)
+{
+  unsigned int i, idx_len, idx_val;
+
+  col_uint_length(idx,&idx_len);
+  for(i=0;i<=idx_len;i++){    
+    col_uint_get(idx,i,&idx_val);
+    col_uint_set(arr,idx_val,value);
+  }
+
+  return 0;
+}
+
+int 
+col_uint_select_scalar (const col_uint * arr, col_uint * idx, unsigned int value){
+  unsigned int i,k,arr_len;
+  unsigned int val;
+  col_uint__reset(idx);
+  col_uint_length(arr,&arr_len);
+  k=0;
+  for(i=0;i<=arr_len;i++){
+    col_uint_get(arr,i,&val);
+    if(val==value){
+      col_uint_set(idx,k++,i);
+    }
+  }
   return 0;
 }
 
