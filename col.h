@@ -1,6 +1,9 @@
 #ifndef __ARRAY_H__
 #define __ARRAY_H__
 
+#include "col_errors.h"
+
+
 /**
  * @brief A structure to hold columns of type int.
  */
@@ -50,8 +53,8 @@ typedef struct col_str{
 } col_str;
 
 
-
-int col_int_init(col_int **p );
+const char * col_get_error_string(col_error num);
+col_error col_int_init(col_int **p ) __attribute__((warn_unused_result));
 void col_int_free(col_int *arr);
 int col_int_get(const col_int *arr, unsigned int num, int *value);
 int col_int_set(col_int *arr, unsigned int num, int value);
@@ -68,7 +71,7 @@ int col_int_select_scalar (const col_int * arr, col_uint * idx, int value);
 
 
 
-int col_uint_init(col_uint **p );
+col_error col_uint_init(col_uint **p ) __attribute__((warn_unused_result));
 void col_uint_free(col_uint *arr);
 int col_uint_get(const col_uint *arr, unsigned int num, unsigned int *value);
 int col_uint_set(col_uint *arr, unsigned int num, unsigned int value);
@@ -82,7 +85,7 @@ int col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigne
 int col_uint_select_scalar (const col_uint * arr, col_uint * idx, unsigned int value);
 
 
-int col_double_init(col_double **p );
+int col_double_init(col_double **p ) __attribute__((warn_unused_result));
 
 int col_double_realloc(col_double *arr,unsigned int numrows);
 
@@ -90,7 +93,7 @@ void col_double_free(col_double *arr);
 
 void col_str_free(col_str *arr);
 
-int col_str_init(col_str **p);
+int col_str_init(col_str **p) __attribute__((warn_unused_result));
 
 int col_str_realloc(col_str *arr,unsigned int numrows);
 

@@ -6,8 +6,8 @@
 
 
 /* private functions */
-static int col_uint__realloc(col_uint *arr,unsigned int numrows);
-static int col_int__realloc(col_int *arr,unsigned int numrows);
+static col_error col_uint__realloc(col_uint *arr,unsigned int numrows) __attribute__((warn_unused_result));
+static col_error col_int__realloc(col_int *arr,unsigned int numrows) __attribute__((warn_unused_result));
 static int col_uint__getallocated(const col_uint *arr, unsigned int *len);
 static int col_int__getallocated(const col_int *arr, unsigned int *len);
 static int col_int__setlength(col_int *arr, unsigned int len);
@@ -15,6 +15,14 @@ static int col_uint__setlength(col_uint *arr, unsigned int len);
 static int col_int__reset (col_int * p);
 static int col_uint__reset (col_uint * p);
 /* end private functions */
+
+/* Start universal functions */
+
+const char * col_get_error_string(col_error num){
+  return col_error_strings[num];
+}
+
+/* End type-less functions. */
 
 /* Start Integer functions */
 
@@ -27,7 +35,7 @@ col_int__reset (col_int *p){
 }
 
 
-int
+col_error
 col_int_init (col_int ** p)
 {
   *p = NULL;
@@ -38,8 +46,7 @@ col_int_init (col_int ** p)
   col_int__reset(*p);
   (*p)->d = NULL;
   (*p)->_allocated = 0;
-  col_int__realloc (*p, 1);
-  return 0;
+  return col_int__realloc (*p, 4096);
 }
 
 
@@ -134,7 +141,7 @@ col_int_free (col_int * arr)
 }
 
 
-int
+col_error
 col_int__realloc (col_int * arr, unsigned int allocate)
 {
   /* unsigned int s; 
@@ -143,11 +150,11 @@ col_int__realloc (col_int * arr, unsigned int allocate)
   col_int_length(arr, &numrows);
   if (NULL == (arr->d = realloc (arr->d, allocate * sizeof (int))))
     {
-      return 1;
+      return OUT_OF_MEMORY;
     }
   arr->_allocated = allocate;
   memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(int)); 
-  return 0;
+  return NO_ERROR;
 }
 
 
@@ -258,7 +265,7 @@ col_uint__reset (col_uint *p){
   return 0;
 }
 
-int
+col_error
 col_uint_init (col_uint ** p)
 {
   *p = NULL;
@@ -270,8 +277,7 @@ col_uint_init (col_uint ** p)
   col_uint__reset (*p);
   (*p)->d = NULL;
   (*p)->_allocated = 0;
-  col_uint__realloc (*p, 1);
-  return 0;
+  return col_uint__realloc (*p, 4096);
 }
 
 
@@ -365,7 +371,7 @@ col_uint_free (col_uint * arr)
 }
 
 
-int
+col_error
 col_uint__realloc (col_uint * arr, unsigned int allocate)
 {
   /* unsigned int s;
@@ -376,11 +382,11 @@ col_uint__realloc (col_uint * arr, unsigned int allocate)
   arr->d = (unsigned int *) realloc (arr->d, allocate * sizeof (unsigned int));
   if (arr->d == NULL)
     {
-      return 1;
+      return OUT_OF_MEMORY;
     }
   arr->_allocated = allocate;
   memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(unsigned int)); 
-  return 0;
+  return NO_ERROR;
 }
 
 int
