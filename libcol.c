@@ -57,7 +57,7 @@ col_int_get (const col_int * arr, unsigned int num, int *value)
   return 0;
 }
 
-int
+col_error
 col_int_set (col_int * arr, unsigned int i, int value)
 {
   unsigned int allocated, length;
@@ -83,37 +83,42 @@ col_int_set (col_int * arr, unsigned int i, int value)
     arr->min = value;
   else if (arr->max < value)
     arr->max = value;
-  return 0;
+  return NO_ERROR;
 }
 
-int
+col_error
 col_int_subset_assign_scalar (col_int * arr, const col_uint * idx, int value)
 {
   unsigned int i, idx_len, idx_val;
-
+  col_error e;
   col_uint_length(idx,&idx_len);
   for(i=0;i<=idx_len;i++){    
     col_uint_get(idx,i,&idx_val);
-    col_int_set(arr,idx_val,value);
+    if(NO_ERROR!=(e=col_int_set(arr,idx_val,value))){
+      return e;
+    }
   }
 
-  return 0;
+  return NO_ERROR;
 }
 
-int 
+col_error 
 col_int_select_scalar (const col_int * arr, col_uint * idx, int value){
   unsigned int i,k,arr_len;
   int val;
+  col_error e;
   col_uint__reset(idx);
   col_int_length(arr,&arr_len);
   k=0;
   for(i=0;i<=arr_len;i++){
     col_int_get(arr,i,&val);
     if(val==value){
-      col_uint_set(idx,k++,i);
+      if(NO_ERROR != (e = col_uint_set(idx,k++,i))){
+        return e;
+      }
     }
   }
-  return 0;
+  return NO_ERROR;
 }
 
 
@@ -180,16 +185,19 @@ col_int__setlength (col_int * arr, unsigned int len)
 }
 
 
-int
+col_error
 col_int_rand (col_int * arr, const col_uint * idx, int min, int max, unsigned int num)
 {
   unsigned int i;
   unsigned int idx_len, v;
+  col_error e;
   if (idx == NULL)
     {
       for (i = 0; i < num; i++)
 	{
-	  col_int_set (arr, i, min + (rand () % (max - min + 1)));
+	  if(NO_ERROR!=(e=col_int_set (arr, i, min + (rand () % (max - min + 1))))){
+            return e;
+          }
 	}
     }
   else
@@ -198,10 +206,12 @@ col_int_rand (col_int * arr, const col_uint * idx, int min, int max, unsigned in
       for (i = 0; i < idx_len; i++)
 	{
 	  col_uint_get (idx, i , &v);
-	  col_int_set (arr, v, min + (rand () % (max - min + 1)));
+	  if(NO_ERROR!=(e=col_int_set (arr, v, min + (rand () % (max - min + 1))))){
+            return e;
+          }
 	}
     }
-  return 0;
+  return NO_ERROR;
 }
 
 
@@ -222,18 +232,21 @@ col_int_disp (col_int * arr)
   return 0;
 }
 
-int
+col_error
 col_int_range (col_int * arr, int l, int r, unsigned int step)
 {
   unsigned int i;
   int v;
+  col_error e;
   col_int__reset(arr);
   i = 0;
   for (v = l; v <= r; v+=step)
     {
-      col_int_set (arr, i++, v);
+      if(NO_ERROR!=(e=col_int_set (arr, i++, v))){
+        return e;
+      }
     }
-  return 0;
+  return NO_ERROR;
 }
 
 
@@ -303,7 +316,7 @@ col_uint_sum (const col_uint * arr, unsigned int *output)
   return 0;
 }
 
-int
+col_error
 col_uint_set (col_uint * arr, unsigned int i, unsigned int value)
 {
   int rc;
@@ -329,34 +342,40 @@ col_uint_set (col_uint * arr, unsigned int i, unsigned int value)
     arr->min = value;
   else if (arr->max < value)
     arr->max = value;
-  return 0;
+  return NO_ERROR;
 }
 
-int
+col_error
 col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigned int value)
 {
   unsigned int i, idx_len, idx_val;
+  col_error e;
 
   col_uint_length(idx,&idx_len);
   for(i=0;i<=idx_len;i++){    
     col_uint_get(idx,i,&idx_val);
-    col_uint_set(arr,idx_val,value);
+    if(NO_ERROR!=(e=col_uint_set(arr,idx_val,value))){
+      return e;
+    }
   }
 
-  return 0;
+  return NO_ERROR;
 }
 
-int 
+col_error 
 col_uint_select_scalar (const col_uint * arr, col_uint * idx, unsigned int value){
   unsigned int i,k,arr_len;
   unsigned int val;
+  col_error e;
   col_uint__reset(idx);
   col_uint_length(arr,&arr_len);
   k=0;
   for(i=0;i<=arr_len;i++){
     col_uint_get(arr,i,&val);
     if(val==value){
-      col_uint_set(idx,k++,i);
+      if(NO_ERROR!=(e=col_uint_set(idx,k++,i))){
+        return e;
+      }
     }
   }
   return 0;
@@ -428,17 +447,21 @@ col_uint_disp (col_uint * arr)
   return 0;
 }
 
-int
+col_error
 col_uint_range (col_uint * arr, unsigned int l, unsigned int r,
 		unsigned int step)
 {
   unsigned int i, v;
+  col_error e;
+
   i = 0;
   col_uint__reset(arr);
   for(v=l;v<=r; v+=step){
-    col_uint_set (arr, i++ , v);
+    if(NO_ERROR!=(e=col_uint_set (arr, i++ , v))){
+      return e;
+    }
   }
-  return 0;
+  return NO_ERROR;
 }
 
 

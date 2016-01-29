@@ -57,16 +57,16 @@ const char * col_get_error_string(col_error num);
 col_error col_int_init(col_int **p ) __attribute__((warn_unused_result));
 void col_int_free(col_int *arr);
 int col_int_get(const col_int *arr, unsigned int num, int *value);
-int col_int_set(col_int *arr, unsigned int num, int value);
+col_error col_int_set(col_int *arr, unsigned int num, int value) __attribute__((warn_unused_result));
 int col_int_sum(const col_int *arr, int *output);
 int col_int_disp(col_int *arr);
 int col_int_length(const col_int *arr, unsigned int *len);
-int col_int_rand(col_int *arr,const col_uint *idx, int min, int max, unsigned int num);
-int col_int_range(col_int *arr, int l, int r, unsigned int step);
+col_error col_int_rand(col_int *arr,const col_uint *idx, int min, int max, unsigned int num) __attribute__((warn_unused_result));
+col_error col_int_range(col_int *arr, int l, int r, unsigned int step);
 int col_int_min(const col_int *arr, int *value);
 int col_int_max(const col_int *arr, int *value);
-int col_int_subset_assign_scalar(col_int *arr, const col_uint * idx, int value);
-int col_int_select_scalar (const col_int * arr, col_uint * idx, int value);
+col_error col_int_subset_assign_scalar(col_int *arr, const col_uint * idx, int value);
+col_error col_int_select_scalar (const col_int * arr, col_uint * idx, int value);
 
 
 
@@ -74,15 +74,15 @@ int col_int_select_scalar (const col_int * arr, col_uint * idx, int value);
 col_error col_uint_init(col_uint **p ) __attribute__((warn_unused_result));
 void col_uint_free(col_uint *arr);
 int col_uint_get(const col_uint *arr, unsigned int num, unsigned int *value);
-int col_uint_set(col_uint *arr, unsigned int num, unsigned int value);
+col_error col_uint_set(col_uint *arr, unsigned int num, unsigned int value) __attribute__((warn_unused_result));
 int col_uint_sum(const col_uint *arr, unsigned int *output);
 int col_uint_disp(col_uint *arr);
 int col_uint_length(const col_uint *arr, unsigned int *len);
-int col_uint_range(col_uint *arr, unsigned int l, unsigned int r, unsigned int step);
+col_error col_uint_range(col_uint *arr, unsigned int l, unsigned int r, unsigned int step);
 int col_uint_min(const col_uint *arr, unsigned int *value);
 int col_uint_max(const col_uint *arr, unsigned int *value);
-int col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigned int value);
-int col_uint_select_scalar (const col_uint * arr, col_uint * idx, unsigned int value);
+col_error col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigned int value);
+col_error col_uint_select_scalar (const col_uint * arr, col_uint * idx, unsigned int value);
 
 
 int col_double_init(col_double **p ) __attribute__((warn_unused_result));
