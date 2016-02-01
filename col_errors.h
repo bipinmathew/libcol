@@ -4,6 +4,7 @@
 
 #define LIBCOL_ERRORS \
  X(NO_ERROR, "No error.") \
+ X(LIBCOL_INVALID_RANGE, "Invalid range.") \
  X(OUT_OF_MEMORY, "Failed to allocate memory.")
 
 

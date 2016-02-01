@@ -27,10 +27,10 @@ void test_int_range(void)
 
     col_int *idx;
     col_int_init(&idx);
-    col_int_range(idx,-2,10,3);
+    col_int_range(idx,-2,-10,-3);
 
     col_int_sum(idx,&value);
-    CU_ASSERT(20==value);
+    CU_ASSERT(value==-15);
     col_int_free(idx);
 
 }

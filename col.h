@@ -62,7 +62,7 @@ int col_int_sum(const col_int *arr, int *output);
 int col_int_disp(col_int *arr);
 int col_int_length(const col_int *arr, unsigned int *len);
 col_error col_int_rand(col_int *arr,const col_uint *idx, int min, int max, unsigned int num) __attribute__((warn_unused_result));
-col_error col_int_range(col_int *arr, int l, int r, unsigned int step) __attribute__((warn_unused_result));
+col_error col_int_range(col_int *arr, int l, int r, int step) __attribute__((warn_unused_result));
 int col_int_min(const col_int *arr, int *value);
 int col_int_max(const col_int *arr, int *value);
 col_error col_int_subset_assign_scalar(col_int *arr, const col_uint * idx, int value);

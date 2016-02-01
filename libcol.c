@@ -6,6 +6,8 @@
 
 
 /* private functions */
+
+static col_error col_int__set (col_int * arr, unsigned int i, int value);
 static col_error col_uint__realloc(col_uint *arr,unsigned int numrows) __attribute__((warn_unused_result));
 static col_error col_int__realloc(col_int *arr,unsigned int numrows) __attribute__((warn_unused_result));
 static int col_uint__getallocated(const col_uint *arr, unsigned int *len);
@@ -57,11 +59,16 @@ col_int_get (const col_int * arr, unsigned int num, int *value)
   return 0;
 }
 
+col_error col_int__set(col_int *arr, unsigned int i, int value){
+  arr->d[i] = value;
+  return NO_ERROR;
+}
+
 col_error
 col_int_set (col_int * arr, unsigned int i, int value)
 {
   unsigned int allocated, length;
-  int rc;
+  col_error rc;
   col_int__getallocated (arr, &allocated);
   while (allocated < i)
     {
@@ -78,7 +85,7 @@ col_int_set (col_int * arr, unsigned int i, int value)
       col_int__setlength (arr, i);
     }
 
-  arr->d[i] = value;
+  col_int__set(arr,i,value);
   if (arr->min > value)
     arr->min = value;
   else if (arr->max < value)
@@ -233,19 +240,44 @@ col_int_disp (col_int * arr)
 }
 
 col_error
-col_int_range (col_int * arr, int l, int r, unsigned int step)
+col_int_range (col_int * arr, int l, int r, int step)
 {
   unsigned int i;
+  unsigned int num_values;
+  unsigned int allocate;
+  col_error rc;
   int v;
-  col_error e;
+
+  
+  if(0>(r-l)/step){
+    return LIBCOL_INVALID_RANGE;
+  }
+
+
+  num_values = 1+((r-1)/step);
+
   col_int__reset(arr);
-  i = 0;
-  for (v = l; v <= r; v+=step)
+
+  
+
+  for(col_int__getallocated(arr,&allocate); allocate< num_values; allocate <<=1);
+
+  if (0 < (rc = col_int__realloc (arr, allocate)))
     {
-      if(NO_ERROR!=(e=col_int_set (arr, i++, v))){
-        return e;
-      }
+      return rc;
     }
+
+  
+  i = 0;
+  for (v = l; abs(v) <= abs(r); v+=step)
+    {
+      col_int__set (arr, i++, v);
+    }
+
+  col_int__setlength(arr,i-1);
+
+  arr->min = (step > 0 ) ? l : (v-step);
+  arr->max = (step > 0 ) ? (v-step) : l;
   return NO_ERROR;
 }
 
