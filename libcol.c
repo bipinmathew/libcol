@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include <emmintrin.h>
 #include "col.h"
 
 
@@ -136,11 +137,40 @@ col_int_sum (const col_int * arr, int *output)
   int v;
   col_int_length (arr, &len);
   *output = 0;
-  for (i = 0; i <= len; i++)
-    {
+  __m128i xmm0, accumulator;
+  __m128i* src;
+  static const BLOCKSIZE=4;
+  unsigned int remainder;
+  int accint[BLOCKSIZE];
+
+  /* If we have fewer than 1k numbers do naive computation. else
+     use xmm0 */
+  if(len<1024){
+    for (i = 0; i <= len; i++){
       col_int_get (arr, i, &v);
       *output += v;
     }
+  }
+  else{
+    remainder = len%BLOCKSIZE;
+
+    src = (__m128i*)arr->d;
+    accumulator = _mm_loadu_si128(src);
+
+    for(i=BLOCKSIZE;i<len-remainder;i+=BLOCKSIZE){
+      xmm0 = _mm_loadu_si128(++src);
+      accumulator = _mm_add_epi32(accumulator,xmm0);
+    }
+
+    _mm_store_si128((__m128i*)accint,accumulator);
+
+    for(i=0;i<BLOCKSIZE;i++){
+      *output += accint[i];
+    }
+    for(i=len-remainder;i<=len;i++){
+      *output += arr->d[i];
+    }
+  }
   return 0;
 }
 
@@ -165,7 +195,8 @@ col_int__realloc (col_int * arr, unsigned int allocate)
       return OUT_OF_MEMORY;
     }
   arr->_allocated = allocate;
-  memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(int)); 
+  // This memset really slows things down!
+  // memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(int)); 
   return NO_ERROR;
 }
 
@@ -242,39 +273,53 @@ col_int_disp (col_int * arr)
 col_error
 col_int_range (col_int * arr, int l, int r, int step)
 {
+  static const BLOCKSIZE = 4;
   unsigned int i;
-  unsigned int num_values;
   unsigned int allocate;
   col_error rc;
   int v;
+  int num_iter;
+  __m128i* src;
+
+  int xint[BLOCKSIZE];
+  int mint[BLOCKSIZE];
+
+  __m128i mask,xmm0;
 
   
-  if(0>(r-l)/step){
+  if(0>  (num_iter = (r-l)/step)){
     return LIBCOL_INVALID_RANGE;
   }
 
-
-  num_values = 1+((r-1)/step);
-
   col_int__reset(arr);
 
-  
 
-  for(col_int__getallocated(arr,&allocate); allocate< num_values; allocate <<=1);
+  for(col_int__getallocated(arr,&allocate); allocate<=num_iter; allocate <<=1);
 
-  if (0 < (rc = col_int__realloc (arr, allocate)))
-    {
-      return rc;
-    }
+  if (0 < (rc = col_int__realloc (arr, allocate))){
+    return rc;
+  }
 
-  
-  i = 0;
-  for (v = l; abs(v) <= abs(r); v+=step)
-    {
-      col_int__set (arr, i++, v);
-    }
 
-  col_int__setlength(arr,i-1);
+
+  for(i=0;i<BLOCKSIZE;i++){
+    xint[i]=l+i*step;
+    mint[i]=BLOCKSIZE*step;
+    col_int__set(arr,i,xint[i]);
+  }
+
+
+  xmm0 = _mm_loadu_si128(xint);
+  mask = _mm_loadu_si128(mint);
+  src = (__m128i*) &arr->d[BLOCKSIZE];
+
+  for(i=BLOCKSIZE;i<=num_iter;i+=BLOCKSIZE){
+    xmm0 = _mm_add_epi32(xmm0,mask);
+    _mm_store_si128(src,xmm0);
+    ++src;
+  }
+
+  col_int__setlength(arr,num_iter);
 
   arr->min = (step > 0 ) ? l : (v-step);
   arr->max = (step > 0 ) ? (v-step) : l;
