@@ -10,7 +10,7 @@
 
 static col_error col_int__set (col_int * arr, unsigned int i, int value);
 static col_error col_uint__realloc(col_uint *arr,unsigned int numrows) __attribute__((warn_unused_result));
-static col_error col_int__realloc(col_int *arr,unsigned int numrows) __attribute__((warn_unused_result));
+static col_error col_int__realloc(col_int *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static int col_uint__getallocated(const col_uint *arr, unsigned int *len);
 static int col_int__getallocated(const col_int *arr, unsigned int *len);
 static int col_int__setlength(col_int *arr, unsigned int len);
@@ -42,6 +42,9 @@ col_error
 col_int_init (col_int ** p)
 {
   *p = NULL;
+  unsigned int allocate;
+
+  allocate = 4096;
   if ((*p = (col_int *) malloc (sizeof (col_int))) == NULL)
     {
       return 1;
@@ -49,7 +52,7 @@ col_int_init (col_int ** p)
   col_int__reset(*p);
   (*p)->d = NULL;
   (*p)->_allocated = 0;
-  return col_int__realloc (*p, 4096);
+  return col_int__realloc (*p, &allocate);
 }
 
 
@@ -71,14 +74,12 @@ col_int_set (col_int * arr, unsigned int i, int value)
   unsigned int allocated, length;
   col_error rc;
   col_int__getallocated (arr, &allocated);
-  while (allocated < i)
-    {
-      if (0 < (rc = col_int__realloc (arr, 2 * allocated)))
-	{
-	  return rc;
-	}
-      col_int__getallocated (arr, &allocated);
+  if(allocated < i){
+    allocated=i;
+    if (NO_ERROR != (rc = col_int__realloc (arr, &allocated))){
+        return rc;
     }
+  }
 
   col_int_length (arr, &length);
   if (i > length)
@@ -97,8 +98,24 @@ col_int_set (col_int * arr, unsigned int i, int value)
 col_error
 col_int_subset_assign_scalar (col_int * arr, const col_uint * idx, int value)
 {
-  unsigned int i, idx_len, idx_val;
+  unsigned int i, arr_len, idx_len, idx_val;
+  unsigned int arr_allocated,idx_max;
   col_error e;
+
+  col_int_length(arr,&arr_len);
+
+  col_uint_max(idx,&idx_max);
+  col_int__getallocated(arr,&arr_allocated);
+  if(arr_allocated<idx_max){
+    if(NO_ERROR!=(e=col_int__realloc(arr,&idx_max))){
+      return e;
+    }
+  }
+  
+
+  memset(&arr->d[arr_len+1],0,(arr_allocated-arr_len-1)*sizeof(int));
+    
+
   col_uint_length(idx,&idx_len);
   for(i=0;i<=idx_len;i++){    
     col_uint_get(idx,i,&idx_val);
@@ -184,19 +201,20 @@ col_int_free (col_int * arr)
 
 
 col_error
-col_int__realloc (col_int * arr, unsigned int allocate)
+col_int__realloc (col_int * arr, unsigned int * numrows)
 {
-  /* unsigned int s; 
-     s = arr->allocate; */
-  unsigned int numrows;
-  col_int_length(arr, &numrows);
-  if (NULL == (arr->d = realloc (arr->d, allocate * sizeof (int))))
-    {
-      return OUT_OF_MEMORY;
-    }
+  unsigned int allocate;
+
+
+  for( allocate = 4096 ; allocate < (*numrows); allocate <<=1);
+
+
+  if (NULL == (arr->d = realloc (arr->d, allocate * sizeof (int)))){
+    return OUT_OF_MEMORY;
+  }
+
   arr->_allocated = allocate;
-  // This memset really slows things down!
-  // memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(int)); 
+  (*numrows) = allocate;
   return NO_ERROR;
 }
 
@@ -293,10 +311,11 @@ col_int_range (col_int * arr, int l, int r, int step)
 
   col_int__reset(arr);
 
+  // Allocate at least the number of rows.
+  allocate=num_iter;
 
-  for(col_int__getallocated(arr,&allocate); allocate<=num_iter; allocate <<=1);
 
-  if (0 < (rc = col_int__realloc (arr, allocate))){
+  if (0 < (rc = col_int__realloc (arr, &allocate))){
     return rc;
   }
 
@@ -321,8 +340,8 @@ col_int_range (col_int * arr, int l, int r, int step)
 
   col_int__setlength(arr,num_iter);
 
-  arr->min = (step > 0 ) ? l : (v-step);
-  arr->max = (step > 0 ) ? (v-step) : l;
+  arr->min = (step > 0 ) ? l : (l+num_iter*step);
+  arr->max = (step > 0 ) ? (l+num_iter*step) : l;
   return NO_ERROR;
 }
 
@@ -481,7 +500,7 @@ col_uint__realloc (col_uint * arr, unsigned int allocate)
       return OUT_OF_MEMORY;
     }
   arr->_allocated = allocate;
-  memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(unsigned int)); 
+  //memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(unsigned int)); 
   return NO_ERROR;
 }
 

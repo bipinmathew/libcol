@@ -27,10 +27,10 @@ void test_int_range(void)
 
     col_int *idx;
     col_int_init(&idx);
-    col_int_range(idx,-2,-10,-3);
+    col_int_range(idx,-2,-22,-3);
 
     col_int_sum(idx,&value);
-    CU_ASSERT(value==-15);
+    CU_ASSERT(value==-77);
     col_int_free(idx);
 
 }
@@ -129,8 +129,13 @@ void test_col_int_subset_assign_scalar(void)
     col_int_range(arr,0,10,1);
     col_int_length(arr,&num);
 
+
     col_uint_range(idx,0,2*num,3);
+
+
     ret = col_int_subset_assign_scalar(arr,idx,1);
+
+
     col_uint_range(idx,1,2*num,3);
     CU_ASSERT(0==col_int_subset_assign_scalar(arr,idx,-1)); 
 
