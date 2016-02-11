@@ -112,8 +112,9 @@ col_int_subset_assign_scalar (col_int * arr, const col_uint * idx, int value)
     }
   }
   
-
-  memset(&arr->d[arr_len+1],0,(arr_allocated-arr_len-1)*sizeof(int));
+  if(arr_allocated>arr_len){
+    memset(&arr->d[arr_len+1],0,(arr_allocated-arr_len-1)*sizeof(int));
+  }
     
 
   col_uint_length(idx,&idx_len);
@@ -444,8 +445,25 @@ col_uint_set (col_uint * arr, unsigned int i, unsigned int value)
 col_error
 col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigned int value)
 {
-  unsigned int i, idx_len, idx_val;
+
+  unsigned int i, arr_len, idx_len, idx_val;
+  unsigned int arr_allocated,idx_max;
   col_error e;
+
+  col_uint_length(arr,&arr_len);
+
+  col_uint_max(idx,&idx_max);
+  col_uint__getallocated(arr,&arr_allocated);
+  if(arr_allocated<idx_max){
+    if(NO_ERROR!=(e=col_uint__realloc(arr,&idx_max))){
+      return e;
+    }
+  }
+  
+  if(arr_allocated>arr_len){
+    memset(&arr->d[arr_len+1],0,(arr_allocated-arr_len-1)*sizeof(unsigned int));
+  }
+    
 
   col_uint_length(idx,&idx_len);
   for(i=0;i<=idx_len;i++){    
@@ -456,6 +474,7 @@ col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigned in
   }
 
   return NO_ERROR;
+
 }
 
 col_error 
