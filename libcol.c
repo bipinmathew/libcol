@@ -9,7 +9,7 @@
 /* private functions */
 
 static col_error col_int__set (col_int * arr, unsigned int i, int value);
-static col_error col_uint__realloc(col_uint *arr,unsigned int numrows) __attribute__((warn_unused_result));
+static col_error col_uint__realloc(col_uint *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static col_error col_int__realloc(col_int *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static int col_uint__getallocated(const col_uint *arr, unsigned int *len);
 static int col_int__getallocated(const col_int *arr, unsigned int *len);
@@ -157,7 +157,7 @@ col_int_sum (const col_int * arr, int *output)
   *output = 0;
   __m128i xmm0, accumulator;
   __m128i* src;
-  static const BLOCKSIZE=4;
+  static const unsigned int BLOCKSIZE=4;
   unsigned int remainder;
   int accint[BLOCKSIZE];
 
@@ -292,12 +292,12 @@ col_int_disp (col_int * arr)
 col_error
 col_int_range (col_int * arr, int l, int r, int step)
 {
-  static const BLOCKSIZE = 4;
+  static const unsigned int BLOCKSIZE = 4;
   unsigned int i;
   unsigned int allocate;
   col_error rc;
-  int v;
-  int num_iter;
+  unsigned int num_iter;
+  int last_val;
   __m128i* src;
 
   int xint[BLOCKSIZE];
@@ -306,8 +306,11 @@ col_int_range (col_int * arr, int l, int r, int step)
   __m128i mask,xmm0;
 
   
-  if(0>  (num_iter = (r-l)/step)){
+  if(0>   (r-l)/step){
     return LIBCOL_INVALID_RANGE;
+  }
+  else{
+    num_iter = (r-l)/step;
   }
 
   col_int__reset(arr);
@@ -329,8 +332,8 @@ col_int_range (col_int * arr, int l, int r, int step)
   }
 
 
-  xmm0 = _mm_loadu_si128(xint);
-  mask = _mm_loadu_si128(mint);
+  xmm0 = _mm_loadu_si128((__m128i*)xint);
+  mask = _mm_loadu_si128((__m128i*)mint);
   src = (__m128i*) &arr->d[BLOCKSIZE];
 
   for(i=BLOCKSIZE;i<=num_iter;i+=BLOCKSIZE){
@@ -340,9 +343,10 @@ col_int_range (col_int * arr, int l, int r, int step)
   }
 
   col_int__setlength(arr,num_iter);
+  last_val = l+num_iter*step;
 
-  arr->min = (step > 0 ) ? l : (l+num_iter*step);
-  arr->max = (step > 0 ) ? (l+num_iter*step) : l;
+  arr->min = (step > 0 ) ? l : last_val;
+  arr->max = (step > 0 ) ? last_val : l;
   return NO_ERROR;
 }
 
@@ -379,6 +383,11 @@ col_error
 col_uint_init (col_uint ** p)
 {
   *p = NULL;
+
+  unsigned int allocate;
+
+  allocate = 4096;
+
   *p = (col_uint *) malloc (sizeof (col_uint));
   if (*p == NULL)
     {
@@ -387,7 +396,7 @@ col_uint_init (col_uint ** p)
   col_uint__reset (*p);
   (*p)->d = NULL;
   (*p)->_allocated = 0;
-  return col_uint__realloc (*p, 4096);
+  return col_uint__realloc (*p, &allocate);
 }
 
 
@@ -419,14 +428,16 @@ col_uint_set (col_uint * arr, unsigned int i, unsigned int value)
   int rc;
   unsigned int allocated, length;
   col_uint__getallocated (arr, &allocated);
-  while (allocated < i)
-    {
-      if (0 < (rc = col_uint__realloc (arr, 2 * allocated)))
-	{
-	  return rc;
-	}
-      col_uint__getallocated (arr, &allocated);
+
+
+  if(allocated < i){
+    allocated=i;
+    if (NO_ERROR != (rc = col_uint__realloc (arr, &allocated))){
+        return rc;
     }
+  }
+
+
   col_uint_length (arr, &length);
   if (i > length)
     {
@@ -506,21 +517,23 @@ col_uint_free (col_uint * arr)
 
 
 col_error
-col_uint__realloc (col_uint * arr, unsigned int allocate)
+col_uint__realloc (col_uint * arr, unsigned int * numrows)
 {
-  /* unsigned int s;
-     s = arr->allocate; */
 
-  unsigned int numrows;
-  col_uint_length(arr, &numrows);
-  arr->d = (unsigned int *) realloc (arr->d, allocate * sizeof (unsigned int));
-  if (arr->d == NULL)
-    {
-      return OUT_OF_MEMORY;
-    }
+  unsigned int allocate;
+
+
+  for( allocate = 4096 ; allocate < (*numrows); allocate <<=1);
+
+
+  if (NULL == (arr->d = realloc (arr->d, allocate * sizeof (unsigned int)))){
+    return OUT_OF_MEMORY;
+  }
+
   arr->_allocated = allocate;
-  //memset(&arr->d[numrows+1],0,(allocate-numrows-1)*sizeof(unsigned int)); 
+  (*numrows) = allocate;
   return NO_ERROR;
+
 }
 
 int
