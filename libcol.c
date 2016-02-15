@@ -148,7 +148,7 @@ col_int_select_scalar (const col_int * arr, col_uint * idx, int value){
 }
 
 
-int
+col_error
 col_int_sum (const col_int * arr, int *output)
 {
   unsigned int len, i;
@@ -189,7 +189,7 @@ col_int_sum (const col_int * arr, int *output)
       *output += arr->d[i];
     }
   }
-  return 0;
+  return NO_ERROR;
 }
 
 

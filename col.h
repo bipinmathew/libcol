@@ -58,7 +58,7 @@ col_error col_int_init(col_int **p ) __attribute__((warn_unused_result));
 void col_int_free(col_int *arr);
 int col_int_get(const col_int *arr, unsigned int num, int *value);
 col_error col_int_set(col_int *arr, unsigned int num, int value) __attribute__((warn_unused_result));
-int col_int_sum(const col_int *arr, int *output);
+col_error col_int_sum(const col_int *arr, int *output);
 int col_int_disp(col_int *arr);
 int col_int_length(const col_int *arr, unsigned int *len);
 col_error col_int_rand(col_int *arr,const col_uint *idx, int min, int max, unsigned int num) __attribute__((warn_unused_result));
