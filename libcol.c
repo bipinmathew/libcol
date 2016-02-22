@@ -613,6 +613,69 @@ col_uint_max (const col_uint * arr, unsigned int *value)
 /* End uint functions */
 
 
+
+/* Start Boolean functions */
+
+
+int
+col_boolean__reset (col_boolean *p){
+  p->numrows = 0;
+  return 0;
+}
+
+
+col_error col_boolean__set(col_int *arr, unsigned int i, int value){
+  unsigned int byte;
+  unsigned char bit;
+  byte = i/8;
+  bit = i%8;
+
+  arr->d[i] = value;
+  return NO_ERROR;
+}
+
+
+col_error
+col_boolean__realloc (col_boolean * arr, unsigned int * numrows)
+{
+  unsigned int allocate;
+
+
+  for( allocate = 4096 ; allocate < (*numrows); allocate <<=1);
+
+
+  if (NULL == (arr->d = realloc (arr->d, 1+(allocate/8) ) )){
+    return OUT_OF_MEMORY;
+  }
+
+  arr->_allocated = allocate;
+  (*numrows) = allocate;
+  return NO_ERROR;
+}
+
+col_error col_boolean_init(col_boolean **p ){
+  *p = NULL;
+  unsigned int allocate;
+
+  allocate = 4096;
+  if ((*p = (col_boolean *) malloc (sizeof (col_boolean))) == NULL)
+    {
+      return 1;
+    }
+  col_boolean__reset(*p);
+  (*p)->d = NULL;
+  (*p)->_allocated = 0;
+  return col_boolean__realloc (*p, &allocate);
+} 
+
+void col_boolean_free(col_boolean *arr){
+  free (arr->d);
+  free (arr);
+}
+
+/* End Boolean functions */
+
+
 int
 col_double_init (col_double ** p)
 {

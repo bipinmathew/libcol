@@ -16,6 +16,15 @@ typedef struct col_int{
 } col_int;
 
 
+/**
+ * @brief A structure to hold columns of type boolean.
+ */
+typedef struct col_boolean{
+    unsigned int numrows; /**< number of rows in column */
+    unsigned int _allocated; /**< number of rows allocated */
+    unsigned char *d; /**< pointer to the actual data */
+} col_boolean;
+
 
 /**
  * @brief A structure to hold columns of type int.
@@ -54,6 +63,8 @@ typedef struct col_str{
 
 
 const char * col_get_error_string(col_error num);
+
+
 col_error col_int_init(col_int **p ) __attribute__((warn_unused_result));
 void col_int_free(col_int *arr);
 int col_int_get(const col_int *arr, unsigned int num, int *value);
@@ -83,6 +94,12 @@ int col_uint_min(const col_uint *arr, unsigned int *value);
 int col_uint_max(const col_uint *arr, unsigned int *value);
 col_error col_uint_subset_assign_scalar (col_uint * arr, const col_uint * idx, unsigned int value);
 col_error col_uint_select_scalar (const col_uint * arr, col_uint * idx, unsigned int value);
+
+
+
+col_error col_boolean_init(col_boolean **p ) __attribute__((warn_unused_result));
+void col_boolean_free(col_boolean *arr);
+
 
 
 int col_double_init(col_double **p ) __attribute__((warn_unused_result));
