@@ -146,25 +146,31 @@ void test_col_int_subset_assign_scalar(void)
 
 }
 
-void test_col_int_select_scalar(void)
+void test_col_int_eq_scalar(void)
 {
     int value, ret;
     unsigned int num;
 
     col_int *arr;
     col_uint *idx;
-    int sum;
+    unsigned int i,idx_val;
+    int val;
 
     col_int_init(&arr);
     col_uint_init(&idx);
 
-    col_int_range(arr,0,10,1);
+    col_int_rand(arr,NULL,0,10,5000);
     col_int_length(arr,&num);
 
-    col_uint_range(idx,0,num,2);
-    CU_ASSERT(0 == col_int_subset_assign_scalar(arr,idx,1));
+    CU_ASSERT(0 == col_int_eq_scalar(arr,idx,7));
+    col_uint_length(idx,&num);
 
-    col_int_select_scalar(arr,idx,1);
+
+    for(i=0;i<num;i++){
+      col_uint_get(idx,i,&idx_val);
+      col_int_get(arr,idx_val,&val);
+      CU_ASSERT(7 == val);
+    }
 
     col_int_free(arr);
     col_uint_free(idx);
@@ -250,7 +256,7 @@ int main()
    if (
         (NULL == CU_add_test(intSuite, "test of col_int_range", test_int_range))   ||
         (NULL == CU_add_test(intSuite, "test of col_int_min", test_int_min  ))    || 
-        (NULL == CU_add_test(intSuite, "test of col_int_select_scalar", test_col_int_select_scalar ))   ||
+        (NULL == CU_add_test(intSuite, "test of col_int_eq_scalar", test_col_int_eq_scalar ))   ||
         (NULL == CU_add_test(intSuite, "test of col_int_subset_assign_scalar", test_col_int_subset_assign_scalar ))   ||
         (NULL == CU_add_test(intSuite, "test of col_int_max", test_int_max  )) 
       )

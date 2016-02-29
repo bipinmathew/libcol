@@ -17,6 +17,30 @@ static int col_int__setlength(col_int *arr, unsigned int len);
 static int col_uint__setlength(col_uint *arr, unsigned int len);
 static int col_int__reset (col_int * p);
 static int col_uint__reset (col_uint * p);
+
+
+static int col_int__eq(int here, int there){
+  return here==there;
+}
+
+static int col_int__lt(int here, int there){
+  return here<there;
+}
+
+static int col_int__gt(int here, int there){
+  return here>there;
+}
+
+static int col_int__lteq(int here, int there){
+  return here<=there;
+}
+
+static int col_int__gteq(int here, int there){
+  return here>=there;
+}
+
+
+
 /* end private functions */
 
 /* Start universal functions */
@@ -129,7 +153,33 @@ col_int_subset_assign_scalar (col_int * arr, const col_uint * idx, int value)
 }
 
 col_error 
-col_int_select_scalar (const col_int * arr, col_uint * idx, int value){
+col_int_eq_scalar (const col_int * arr, col_uint * idx, int value){
+  col_int_select_scalar (arr, idx, col_int__eq,value);
+}
+
+col_error 
+col_int_lt_scalar (const col_int * arr, col_uint * idx, int value){
+  col_int_select_scalar (arr, idx, col_int__lt,value);
+}
+
+col_error 
+col_int_gt_scalar (const col_int * arr, col_uint * idx, int value){
+  col_int_select_scalar (arr, idx, col_int__gt,value);
+}
+
+col_error 
+col_int_lteq_scalar (const col_int * arr, col_uint * idx, int value){
+  col_int_select_scalar (arr, idx, col_int__lteq,value);
+}
+
+col_error 
+col_int_gteq_scalar (const col_int * arr, col_uint * idx, int value){
+  col_int_select_scalar (arr, idx, col_int__gteq,value);
+}
+
+
+col_error 
+col_int_select_scalar (const col_int * arr, col_uint * idx, int (*func)(int here,int there), int there){
   unsigned int i,k,arr_len;
   int val;
   col_error e;
@@ -138,7 +188,7 @@ col_int_select_scalar (const col_int * arr, col_uint * idx, int value){
   k=0;
   for(i=0;i<=arr_len;i++){
     col_int_get(arr,i,&val);
-    if(val==value){
+    if(func(val,there)){
       if(NO_ERROR != (e = col_uint_set(idx,k++,i))){
         return e;
       }

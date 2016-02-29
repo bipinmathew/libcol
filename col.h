@@ -77,9 +77,17 @@ col_error col_int_range(col_int *arr, int l, int r, int step) __attribute__((war
 int col_int_min(const col_int *arr, int *value);
 int col_int_max(const col_int *arr, int *value);
 col_error col_int_subset_assign_scalar(col_int *arr, const col_uint * idx, int value);
-col_error col_int_select_scalar (const col_int * arr, col_uint * idx, int value);
+
+col_error col_int_eq_scalar (const col_int * arr, col_uint * idx, int value);
+col_error col_int_lt_scalar (const col_int * arr, col_uint * idx, int value);
+col_error col_int_gt_scalar (const col_int * arr, col_uint * idx, int value);
+col_error col_int_lteq_scalar (const col_int * arr, col_uint * idx, int value);
+col_error col_int_gteq_scalar (const col_int * arr, col_uint * idx, int value);
 
 
+
+
+col_error col_int_select_scalar (const col_int * arr, col_uint * idx, int (*func)(int here,int there), int there);
 
 
 col_error col_uint_init(col_uint **p ) __attribute__((warn_unused_result));
