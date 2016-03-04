@@ -1,6 +1,7 @@
 #ifndef __ARRAY_H__
 #define __ARRAY_H__
 
+#include <math.h>
 #include "col_errors.h"
 
 
@@ -46,6 +47,9 @@ typedef struct col_uint{
  */
 typedef struct col_double{
     unsigned int numrows; /**< number of rows in column */
+    unsigned int _allocated; /**< number of rows allocated */
+    double min;
+    double max;
     double *d; /**< pointer to the actual data */
 } col_double;
 
@@ -66,6 +70,7 @@ const char * col_get_error_string(col_error num);
 
 
 col_error col_int_init(col_int **p ) __attribute__((warn_unused_result));
+col_error col_int_init_scalar (col_int ** p, int val);
 void col_int_free(col_int *arr);
 int col_int_get(const col_int *arr, unsigned int num, int *value);
 col_error col_int_set(col_int *arr, unsigned int num, int value) __attribute__((warn_unused_result));
@@ -110,7 +115,8 @@ void col_boolean_free(col_boolean *arr);
 
 
 
-int col_double_init(col_double **p ) __attribute__((warn_unused_result));
+col_error col_double_init(col_double **p ) __attribute__((warn_unused_result));
+col_error col_double_init_scalar(col_double **p , double val) __attribute__((warn_unused_result));
 
 int col_double_realloc(col_double *arr,unsigned int numrows);
 

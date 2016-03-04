@@ -11,12 +11,16 @@
 static col_error col_int__set (col_int * arr, unsigned int i, int value);
 static col_error col_uint__realloc(col_uint *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static col_error col_int__realloc(col_int *arr,unsigned int * numrows) __attribute__((warn_unused_result));
+static col_error col_double__realloc(col_double *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static int col_uint__getallocated(const col_uint *arr, unsigned int *len);
 static int col_int__getallocated(const col_int *arr, unsigned int *len);
 static int col_int__setlength(col_int *arr, unsigned int len);
 static int col_uint__setlength(col_uint *arr, unsigned int len);
 static int col_int__reset (col_int * p);
+static int col_double__reset (col_double * p);
 static int col_uint__reset (col_uint * p);
+static col_error col_int_init__helper (col_int ** p, unsigned int allocate);
+static col_error col_double_init__helper (col_double ** p, unsigned int allocate);
 
 
 static int col_int__eq(int here, int there){
@@ -62,13 +66,12 @@ col_int__reset (col_int *p){
 }
 
 
+
 col_error
-col_int_init (col_int ** p)
+col_int_init__helper (col_int ** p, unsigned int allocate)
 {
   *p = NULL;
-  unsigned int allocate;
 
-  allocate = 4096;
   if ((*p = (col_int *) malloc (sizeof (col_int))) == NULL)
     {
       return 1;
@@ -77,6 +80,32 @@ col_int_init (col_int ** p)
   (*p)->d = NULL;
   (*p)->_allocated = 0;
   return col_int__realloc (*p, &allocate);
+}
+
+
+col_error
+col_int_init (col_int ** p)
+{
+  *p = NULL;
+  unsigned int allocate;
+
+  allocate = 4096;
+  return col_int_init__helper(p,allocate);
+}
+
+
+col_error
+col_int_init_scalar (col_int ** p, int val)
+{
+  *p = NULL;
+  unsigned int allocate;
+  col_error ret_val;
+
+  allocate = 1;
+  if(0==(ret_val=col_int_init__helper(p,allocate))){
+    ret_val = col_int_set(*p,0,val);
+  }
+  return ret_val;
 }
 
 
@@ -725,19 +754,73 @@ void col_boolean_free(col_boolean *arr){
 
 /* End Boolean functions */
 
-
 int
-col_double_init (col_double ** p)
-{
-  if ((*p = (col_double *) malloc (sizeof (col_double))) == NULL)
-    {
-      return 1;
-    }
-  (*p)->d = NULL;
+col_double__reset (col_double *p){
+  p->numrows = 0;
+  p->min = INFINITY;
+  p->max = -INFINITY;
   return 0;
 }
 
 
+
+col_error
+col_double__realloc (col_double * arr, unsigned int * numrows)
+{
+  unsigned int allocate;
+
+
+  for( allocate = 4096 ; allocate < (*numrows); allocate <<=1);
+
+
+  if (NULL == (arr->d = realloc (arr->d, allocate * sizeof (double)))){
+    return OUT_OF_MEMORY;
+  }
+
+  arr->_allocated = allocate;
+  (*numrows) = allocate;
+  return NO_ERROR;
+}
+
+
+col_error col_double_init__helper (col_double ** p, unsigned int allocate)
+{
+  *p = NULL;
+  if ((*p = (col_double *) malloc (sizeof (col_double))) == NULL)
+    {
+      return 1;
+    }
+
+  col_double__reset(*p);
+  (*p)->d = NULL;
+  (*p)->_allocated = 0;
+  return col_double__realloc (*p, &allocate);
+}
+
+
+col_error col_double_init (col_double ** p)
+{
+  *p = NULL;
+  unsigned int allocate;
+
+  allocate = 4096;
+  return col_double_init__helper(p,allocate);
+}
+
+
+col_error
+col_double_init_scalar (col_double ** p, double val)
+{
+  *p = NULL;
+  unsigned int allocate;
+  col_error ret_val;
+
+  allocate = 1;
+  if(0==(ret_val=col_double_init__helper(p,allocate))){
+    ret_val = col_double_set(*p,0,val);
+  }
+  return ret_val;
+}
 
 int
 col_double_realloc (col_double * arr, unsigned int numrows)
