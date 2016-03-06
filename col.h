@@ -116,11 +116,10 @@ void col_boolean_free(col_boolean *arr);
 
 
 col_error col_double_init(col_double **p ) __attribute__((warn_unused_result));
-col_error col_double_init_scalar(col_double **p , double val) __attribute__((warn_unused_result));
-
+col_error col_double_init_scalar(col_double **p , double val);
 int col_double_realloc(col_double *arr,unsigned int numrows);
-
 void col_double_free(col_double *arr);
+col_error col_double_set (col_double * arr, unsigned int i, double value);
 
 void col_str_free(col_str *arr);
 

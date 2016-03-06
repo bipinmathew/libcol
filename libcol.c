@@ -9,11 +9,13 @@
 /* private functions */
 
 static col_error col_int__set (col_int * arr, unsigned int i, int value);
+static col_error col_double__set (col_double * arr, unsigned int i, double value);
 static col_error col_uint__realloc(col_uint *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static col_error col_int__realloc(col_int *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static col_error col_double__realloc(col_double *arr,unsigned int * numrows) __attribute__((warn_unused_result));
 static int col_uint__getallocated(const col_uint *arr, unsigned int *len);
 static int col_int__getallocated(const col_int *arr, unsigned int *len);
+static int col_double__getallocated(const col_double *arr, unsigned int *len);
 static int col_int__setlength(col_int *arr, unsigned int len);
 static int col_uint__setlength(col_uint *arr, unsigned int len);
 static int col_int__reset (col_int * p);
@@ -834,6 +836,64 @@ col_double_free (col_double * arr)
   free (arr->d);
   free (arr);
 }
+
+
+col_error col_double_set (col_double * arr, unsigned int i, double value)
+{
+  unsigned int allocated, length;
+  col_error rc;
+  col_double__getallocated (arr, &allocated);
+  if(allocated < i){
+    allocated=i;
+    if (NO_ERROR != (rc = col_double__realloc (arr, &allocated))){
+        return rc;
+    }
+  }
+
+  col_double_length (arr, &length);
+  if (i > length)
+    {
+      col_double__setlength (arr, i);
+    }
+
+  col_double__set(arr,i,value);
+  if (arr->min > value)
+    arr->min = value;
+  else if (arr->max < value)
+    arr->max = value;
+  return NO_ERROR;
+}
+
+col_error col_double__set(col_double *arr, unsigned int i, double value){
+  arr->d[i] = value;
+  return NO_ERROR;
+}
+
+
+int
+col_double__getallocated (const col_double * arr, unsigned int *len)
+{
+  *len = arr->_allocated;
+  return 0;
+}
+
+int
+col_double_length (const col_double * arr, unsigned int *len)
+{
+  *len = arr->numrows;
+  return 0;
+}
+
+int
+col_double__setlength (col_double * arr, unsigned int len)
+{
+  arr->numrows = len;
+  return 0;
+}
+
+
+
+
 
 void
 col_str_free (col_str * arr)
