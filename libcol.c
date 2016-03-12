@@ -137,9 +137,11 @@ col_int_set (col_int * arr, unsigned int i, int value)
   }
 
   col_int_length (arr, &length);
-  if (i > length)
+  /* I is the 0 mased index. The length with be 
+     i+1 if i is the last index. */
+  if (i >= length)
     {
-      col_int__setlength (arr, i);
+      col_int__setlength (arr, i+1);
     }
 
   col_int__set(arr,i,value);
@@ -361,7 +363,7 @@ col_int_disp (col_int * arr)
 
   col_int_length(arr,&numrows);
   printf (" ");
-  for (i = 0; i <= numrows; i++)
+  for (i = 0; i < numrows; i++)
     {
       col_int_get (arr, i, &v);
       printf (" %d", v);
